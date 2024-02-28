@@ -113,14 +113,17 @@ class ContactController {
           state,
           company,
           convenio,
+	  value,
+	  pedidoEnv,
           user,
         }: ContactInterface = req.body;
 
       if (!name || !company || !convenio ) return res.status(400).json({message: 'Invalid values for contacts'});
 
       const findUser = await User.findOne({ id: user });
+      const findContact = await Contact.findOne({ cpf: cpf });
 
-      // if (findContact) return res.status(400).json({ message: 'Contact already exists' });
+      //if (findContact) return res.status(400).json({ message: 'Contact already exists' });
 
       const contact = await Contact.create({ 
         name,
@@ -244,7 +247,7 @@ class ContactController {
                   const deal = deals[index];
                   await Deals.create({
                     ...deal,
-                    name: 'Negociação ' + convenioDeal.name,
+                    name: convenioDeal.name,
                     pipeline: pipelineFind,
                     company: contact.company,
                     user: findUser,
@@ -253,13 +256,13 @@ class ContactController {
                     activity: [
                       {
                         name: 'Iniciado por automação',
-                        description: '',
+                        description: pedidoEnv,
                         createdAt: new Date(),
                         createdBy: { id: findUser.id, name: findUser.name },
                         tag: 'HOT',
                       },
                     ],
-                    value: 0,
+                    value: value,
                     status: 'INPROGRESS',
                   }).save();
                 }
@@ -274,19 +277,18 @@ class ContactController {
         }
       }
       // Notificação para adm ao criar um contato
-      // const Origin = contact.state;
-      // confirm.sendMail({
-      //   to: "suporte.diegociara@gmail.com",
-      //   from: '"wavecrm" <api@contato.com>',
-      //   subject: `Solicitação de ${name}`, // assunto do email
-      //   template: 'newRequest',
-      //   context: { name, email, phone, Origin },
-      // },
-      // (err) => {
-      //   if (err) console.log('Email not sent')
-
-      //   transport.close();
-      // });
+       const Origin = contact.state;
+       confirm.sendMail({
+         to: "suporte.diegociara@gmail.com",
+         from: '"wavecrm" <api@contato.com>',
+         subject: `Nova Compra: ${name}`, // assunto do email
+         template: 'newRequest',
+         context: { name, email, phone, Origin },
+       },
+       (err) => {
+         if (err) console.log('Email not sent')
+         transport.close();
+       });
 
       // transport.sendMail({
       //   to: email,
