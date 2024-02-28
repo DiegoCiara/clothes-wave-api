@@ -30,8 +30,8 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
         
-          cd /home/ubuntu/clothes-wave-api
-          pm2 delete clothes-wave-api
-          yarn
-          yarn typeorm migration:run
-          pm2 start "yarn dev" --name clothes-wave-api
+          cd /home/ubuntu/clothes-wave-api |
+          pm2 delete clothes-wave-api |
+          yarn |
+          yarn typeorm migration:run |
+          pm2 start "yarn dev" --name clothes-wave-api 
